@@ -51,7 +51,7 @@ const createItem = async () => {
   try {
     await api.post('/items', formData)
     alert('刊登成功！')
-    router.push('/')
+    router.push('/my-items')
   } catch (error) {
     console.error(error)
     alert('刊登失敗')
