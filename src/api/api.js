@@ -1,8 +1,12 @@
 import axios from 'axios'
 
+export const API_BASE = 'http://localhost:8080'
+export const IMAGE_BASE = 'http://localhost:8080'
+
 const api = axios.create({
-  baseURL: 'http://localhost:8080/api'
+  baseURL: `${API_BASE}/api`
 })
+
 
 api.interceptors.request.use(config => {
 
