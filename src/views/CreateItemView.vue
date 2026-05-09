@@ -16,19 +16,16 @@ const form = ref({
   endTime: ''
 })
 
-// 處理圖片選取與預覽
 const handleFileChange = (e) => {
   const file = e.target.files[0]
   if (file) {
     imageFile.value = file
-    // 產生預覽 URL 給前端顯示
     imagePreview.value = URL.createObjectURL(file)
   }
 }
 
 const createItem = async () => {
   const formData = new FormData()
-
   const item = {
     name: form.value.name,
     categoryId: form.value.categoryId,
@@ -39,9 +36,7 @@ const createItem = async () => {
 
   formData.append(
     'item',
-    new Blob([JSON.stringify(item)], {
-      type: 'application/json'
-    })
+    new Blob([JSON.stringify(item)], { type: 'application/json' })
   )
 
   if (imageFile.value) {
@@ -64,58 +59,63 @@ onMounted(async () => {
 })
 </script>
 
-
 <template>
   <div class="create-container">
     <div class="form-card">
       <h1 class="form-title">刊登新商品</h1>
+      <p class="form-subtitle">填寫下方資訊，開啟您的拍賣活動</p>
 
       <div class="form-body">
-        <!-- 商品圖片上傳區 -->
         <div class="form-group">
-          <label>商品圖片</label>
+          <label class="input-label">商品圖片</label>
           <div class="image-upload-wrapper">
-            <!-- 隱藏原始 input，用 label 或按鈕觸發 -->
             <input type="file" id="imageInput" accept="image/*" @change="handleFileChange" hidden>
             <label for="imageInput" class="upload-area">
               <img v-if="imagePreview" :src="imagePreview" class="preview-img" />
               <div v-else class="upload-placeholder">
-                <span>+ 點擊上傳圖片</span>
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                  <circle cx="8.5" cy="8.5" r="1.5"></circle>
+                  <polyline points="21 15 16 10 5 21"></polyline>
+                </svg>
+                <span>點擊上傳商品圖片</span>
               </div>
             </label>
           </div>
         </div>
 
-        <!-- 原有的表單欄位 -->
         <div class="form-group">
-          <label>商品名稱</label>
-          <input v-model="form.name" placeholder="商品名稱">
+          <label class="input-label">商品名稱</label>
+          <input v-model="form.name" class="styled-input" placeholder="請輸入完整的商品標題">
         </div>
 
         <div class="form-group">
-          <label>商品分類</label>
-          <select v-model="form.categoryId">
+          <label class="input-label">商品分類</label>
+          <select v-model="form.categoryId" class="styled-select">
+            <option value="" disabled>選擇合適的分類</option>
             <option v-for="cat in categories" :key="cat.id" :value="cat.id">{{ cat.name }}</option>
           </select>
         </div>
 
         <div class="form-group">
-          <label>起標價格</label>
-          <input type="number" v-model="form.startingPrice">
+          <label class="input-label">起標價格 (TWD)</label>
+          <input type="number" v-model="form.startingPrice" class="styled-input" min="0">
         </div>
 
         <div class="form-row">
           <div class="form-group">
-            <label>開始時間</label>
-            <input type="datetime-local" v-model="form.startTime">
+            <label class="input-label">開始時間</label>
+            <input type="datetime-local" v-model="form.startTime" class="styled-input">
           </div>
           <div class="form-group">
-            <label>結束時間</label>
-            <input type="datetime-local" v-model="form.endTime">
+            <label class="input-label">結束時間</label>
+            <input type="datetime-local" v-model="form.endTime" class="styled-input">
           </div>
         </div>
 
-        <button class="submit-btn" @click="createItem">立即刊登</button>
+        <button class="submit-btn" @click="createItem">
+          確認刊登商品
+        </button>
       </div>
     </div>
   </div>
@@ -123,43 +123,43 @@ onMounted(async () => {
 
 <style scoped>
 .create-container {
-  background-color: #f8f9fa;
-  min-height: calc(100vh - 70px);
-  /* 扣除導覽列高度 */
-  padding: 40px 20px;
+  background-color: #f8fafc;
+  min-height: calc(100vh - 72px);
+  padding: 60px 24px;
   display: flex;
   justify-content: center;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
 }
 
 .form-card {
   background: white;
   width: 100%;
-  max-width: 600px;
-  padding: 40px;
-  border-radius: 12px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  max-width: 550px;
+  padding: 48px;
+  border-radius: 16px;
+  border: 1px solid #f1f5f9;
+  box-shadow: 0 10px 25px rgba(15, 23, 42, 0.05);
 }
 
 .form-title {
-  font-size: 24px;
-  font-weight: bold;
-  color: #333;
+  font-size: 26px;
+  font-weight: 800;
+  color: #0f172a;
   margin-bottom: 8px;
   text-align: center;
 }
 
 .form-subtitle {
-  color: #888;
+  color: #64748b;
   text-align: center;
-  margin-bottom: 30px;
+  margin-bottom: 40px;
   font-size: 14px;
 }
 
-/* 表單群組佈局 */
 .form-body {
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 24px;
 }
 
 .form-group {
@@ -171,95 +171,103 @@ onMounted(async () => {
 .form-row {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 15px;
+  gap: 16px;
 }
 
-label {
-  font-size: 14px;
-  font-weight: 600;
-  color: #444;
+.input-label {
+  font-size: 13px;
+  font-weight: 700;
+  color: #334155;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
 }
 
-/* 輸入框美化 */
-input,
-select {
+.styled-input,
+.styled-select {
   padding: 12px 16px;
-  border: 1px solid #ddd;
-  border-radius: 6px;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 10px;
   font-size: 15px;
-  transition: all 0.3s;
-  background-color: #fff;
+  color: #1e293b;
+  transition: all 0.2s;
+  background-color: #ffffff;
 }
 
-input:focus,
-select:focus {
+.styled-input:focus,
+.styled-select:focus {
   outline: none;
-  border-color: #ee4d2d;
-  box-shadow: 0 0 0 3px rgba(238, 77, 45, 0.1);
-}
-
-/* 按鈕美化 */
-.submit-btn {
-  margin-top: 10px;
-  padding: 14px;
-  background-color: #ee4d2d;
-  color: white;
-  border: none;
-  border-radius: 6px;
-  font-size: 16px;
-  font-weight: bold;
-  cursor: pointer;
-  transition: background 0.3s;
-}
-
-.submit-btn:hover {
-  background-color: #d73211;
-}
-
-/* 手機版適應 */
-@media (max-width: 480px) {
-  .form-card {
-    padding: 20px;
-  }
-
-  .form-row {
-    grid-template-columns: 1fr;
-  }
+  border-color: #0f172a;
+  box-shadow: 0 0 0 4px rgba(15, 23, 42, 0.05);
 }
 
 .image-upload-wrapper {
   width: 100%;
-  margin-bottom: 10px;
 }
 
 .upload-area {
-  display: block;
-  width: 150px;
-  height: 150px;
-  border: 2px dashed #ddd;
-  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 200px;
+  background: #f8fafc;
+  border: 2px dashed #e2e8f0;
+  border-radius: 12px;
   cursor: pointer;
   overflow: hidden;
-  transition: border-color 0.3s;
+  transition: all 0.3s;
 }
 
 .upload-area:hover {
-  border-color: #ee4d2d;
+  border-color: #0f172a;
+  background: #f1f5f9;
 }
 
 .upload-placeholder {
   display: flex;
+  flex-direction: column;
   align-items: center;
-  justify-content: center;
-  height: 100%;
-  color: #999;
+  gap: 10px;
+  color: #94a3b8;
+}
+
+.upload-placeholder span {
   font-size: 14px;
+  font-weight: 500;
 }
 
 .preview-img {
   width: 100%;
   height: 100%;
-  object-fit: cover;
-  /* 確保圖片不變形地填滿格子 */
+  object-fit: contain;
+  background: white;
+}
+
+.submit-btn {
+  margin-top: 16px;
+  padding: 16px;
+  background-color: #0f172a;
+  color: white;
+  border: none;
+  border-radius: 10px;
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.submit-btn:hover {
+  background-color: #334155;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(15, 23, 42, 0.15);
+}
+
+@media (max-width: 600px) {
+  .form-card {
+    padding: 30px 20px;
+  }
+  .form-row {
+    grid-template-columns: 1fr;
+  }
 }
 </style>

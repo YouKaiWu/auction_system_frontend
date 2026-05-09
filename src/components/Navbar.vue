@@ -1,12 +1,11 @@
 <script setup>
-import { onMounted } from 'vue' // 引入生命週期
+import { onMounted } from 'vue'
 import { useAuthStore } from '@/stores/auth'
 import { useRoute } from 'vue-router'
 
 const auth = useAuthStore()
 const route = useRoute()
 
-// 頁面載入時，如果沒資料但有 token，就去抓一次使用者資料
 onMounted(() => {
   if (!auth.user && auth.token) {
     auth.fetchUser()
@@ -18,14 +17,13 @@ onMounted(() => {
   <nav class="navbar">
     <div class="nav-container">
       <div class="nav-brand">
-        <router-link to="/" class="logo">拍賣商城</router-link>
+        <router-link to="/" class="logo">AUCTION</router-link>
       </div>
 
       <div class="nav-menu">
         <router-link to="/" class="nav-item" :class="{ active: route.path === '/' }">
-          <i class="fas fa-home"></i> 首頁
+          首頁
         </router-link>
-       
         <router-link to="/my-items" class="nav-item" :class="{ active: route.path === '/my-items' }">
           我的拍賣
         </router-link>
@@ -36,15 +34,21 @@ onMounted(() => {
 
       <div class="nav-auth">
         <template v-if="auth.user">
-          <div class="user-info">
-            <span class="user-account">使用者: {{ auth.user.account }}</span>
+          <div class="user-chip">
+            <div class="user-avatar">{{ auth.user.account.charAt(0).toUpperCase() }}</div>
+            <span class="user-account">{{ auth.user.account }}</span>
           </div>
           <button @click="auth.logout()" class="logout-btn">
-            登出
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+              <polyline points="16 17 21 12 16 7"></polyline>
+              <line x1="21" y1="12" x2="9" y2="12"></line>
+            </svg>
+            <span>登出</span>
           </button>
         </template>
 
-        <router-link v-else to="/login" class="login-link">
+        <router-link v-else to="/login" class="login-btn">
           登入 / 註冊
         </router-link>
       </div>
@@ -53,123 +57,133 @@ onMounted(() => {
 </template>
 
 <style scoped>
-/* 全域導覽列容器 */
 .navbar {
-  background-color: #ffffff;
-  border-bottom: 1px solid #e0e0e0;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-  padding: 0 20px;
-  height: 70px;
+  background-color: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid #f1f5f9;
+  height: 72px;
   display: flex;
   align-items: center;
   position: sticky;
-  /* 固定在頂部 */
   top: 0;
   z-index: 1000;
 }
 
 .nav-container {
-  max-width: 1200px;
+  max-width: 1100px;
   margin: 0 auto;
   width: 100%;
+  padding: 0 24px;
   display: flex;
   justify-content: space-between;
   align-items: center;
 }
 
-/* Logo 樣式 */
 .logo {
-  font-size: 1.5rem;
-  font-weight: bold;
-  color: #ee4d2d;
-  /* 拍賣主題橘紅色 */
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: #0f172a;
   text-decoration: none;
-  letter-spacing: 1px;
+  letter-spacing: 2px;
 }
 
-/* 選單連結群組 */
 .nav-menu {
   display: flex;
-  gap: 30px;
+  gap: 32px;
 }
 
 .nav-item {
   text-decoration: none;
-  color: #555;
-  font-size: 1rem;
-  font-weight: 500;
-  transition: color 0.3s ease;
-  position: relative;
-  padding: 10px 0;
+  color: #64748b;
+  font-size: 14px;
+  font-weight: 600;
+  transition: all 0.2s;
+  padding: 8px 0;
 }
 
-.nav-item:hover {
-  color: #ee4d2d;
+.nav-item:hover, .nav-item.active {
+  color: #0f172a;
 }
 
-/* 當前頁面底線效果 */
 .nav-item.active {
-  color: #ee4d2d;
+  box-shadow: 0 2px 0 #0f172a;
 }
 
-.nav-item.active::after {
-  content: '';
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  width: 100%;
-  height: 3px;
-  background-color: #ee4d2d;
-  border-radius: 2px;
-}
-
-/* 會員區與按鈕 */
 .nav-auth {
   display: flex;
   align-items: center;
-  gap: 15px;
+  gap: 20px;
 }
 
-.user-name {
-  font-size: 0.9rem;
-  color: #888;
+.user-chip {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: #f8fafc;
+  padding: 6px 12px 6px 6px;
+  border-radius: 30px;
+  border: 1px solid #f1f5f9;
 }
 
-.login-link {
-  text-decoration: none;
-  color: #ee4d2d;
-  border: 1px solid #ee4d2d;
-  padding: 6px 16px;
-  border-radius: 4px;
-  transition: all 0.3s;
-}
-
-.login-link:hover {
-  background-color: #ee4d2d;
+.user-avatar {
+  width: 28px;
+  height: 28px;
+  background: #0f172a;
   color: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: bold;
+}
+
+.user-account {
+  font-size: 13px;
+  font-weight: 600;
+  color: #334155;
 }
 
 .logout-btn {
-  background-color: #f5f5f5;
-  color: #666;
-  border: 1px solid #ddd;
-  padding: 6px 16px;
-  border-radius: 4px;
+  background: transparent;
+  color: #94a3b8;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 8px;
   cursor: pointer;
-  font-size: 0.9rem;
-  transition: all 0.3s;
+  font-size: 13px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.2s;
 }
 
 .logout-btn:hover {
-  background-color: #eeeeee;
-  border-color: #bbb;
+  background: #fff1f2;
+  color: #e11d48;
 }
 
-/* 手機版適應 (簡單處理) */
+.login-btn {
+  text-decoration: none;
+  background: #0f172a;
+  color: white;
+  padding: 10px 20px;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 600;
+  transition: all 0.2s;
+}
+
+.login-btn:hover {
+  background: #334155;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.15);
+}
+
 @media (max-width: 768px) {
   .nav-menu {
     display: none;
-    /* 手機版通常會收進漢堡選單，這裡先隱藏 */
   }
 }
 </style>

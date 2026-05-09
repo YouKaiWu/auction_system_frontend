@@ -4,20 +4,16 @@ import api from '@/api/api'
 import ItemCard from '@/components/ItemCard.vue'
 
 const items = ref([])
-const categories = ref([]) // 存放所有分類
-const activeCategory = ref(null) // 追蹤目前選中的分類 ID
+const categories = ref([])
+const activeCategory = ref(null)
 
-// 取得分類清單
 const fetchCategories = async () => {
   const res = await api.get('/categories')
   categories.value = res.data
 }
 
-// 取得商品清單，傳入選定的 categoryId
 const fetchItems = async (categoryId = null) => {
   activeCategory.value = categoryId
-  
-  // 依照你的要求，多傳一個 categoryId 參數
   const res = await api.get('/items', {
     params: { categoryId: categoryId }
   })
@@ -32,121 +28,159 @@ onMounted(() => {
 
 <template>
   <div class="marketplace">
-    <div class="header-section">
-      
-      
-      <!-- 分類選擇器 -->
-      <nav class="category-bar">
-        <button 
-          :class="{ active: activeCategory === null }" 
-          @click="fetchItems(null)"
-        >
-          All
-        </button>
-        <button 
-          v-for="cat in categories" 
-          :key="cat.id"
-          :class="{ active: activeCategory === cat.id }"
-          @click="fetchItems(cat.id)"
-        >
-          {{ cat.name }}
-        </button>
-      </nav>
-    </div>
+    <header class="marketplace-header">
+      <div class="header-content">
+        <p class="subtitle">查看新上架的商品</p>
+        <nav class="category-nav">
+          <button 
+            :class="{ active: activeCategory === null }" 
+            @click="fetchItems(null)"
+            class="cat-btn"
+          >
+            全部商品
+          </button>
+          <button 
+            v-for="cat in categories" 
+            :key="cat.id"
+            :class="{ active: activeCategory === cat.id }"
+            @click="fetchItems(cat.id)"
+            class="cat-btn"
+          >
+            {{ cat.name }}
+          </button>
+        </nav>
+      </div>
+    </header>
 
-    <!-- 商品網格 -->
-    <div class="item-grid">
-      <ItemCard
-        v-for="item in items"
-        :key="item.id"
-        :item="item"
-        class="custom-card"
-      />
-    </div>
+    <main class="content-container">
+      <div v-if="items.length" class="item-grid">
+        <ItemCard
+          v-for="item in items"
+          :key="item.id"
+          :item="item"
+        />
+      </div>
+      
+      <div v-else class="empty-state">
+        <div class="empty-icon">📦</div>
+        <p>目前此分類下沒有商品</p>
+      </div>
+    </main>
   </div>
 </template>
 
 <style scoped>
 .marketplace {
-  background-color: #f7f7f7;
-  padding: 30px 20px;
+  background-color: #f8fafc; /* 與整體背景色一致 */
   min-height: 100vh;
-  font-family: system-ui, -apple-system, sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
 }
 
-.header-section {
-  max-width: 1200px;
-  margin: 0 auto 30px;
+.marketplace-header {
+  background: white;
+  border-bottom: 1px solid #f1f5f9;
+  padding: 40px 0 20px;
 }
 
-.header-section h1 {
-  font-size: 22px;
-  margin-bottom: 20px;
-  color: #333;
+.header-content {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 0 24px;
 }
 
-/* 分類導覽列樣式 */
-.category-bar {
+.page-title {
+  font-size: 24px;
+  font-weight: 800;
+  color: #0f172a;
+  margin-bottom: 24px;
+}
+
+/* 分類按鈕列樣式 */
+.category-nav {
   display: flex;
-  gap: 12px;
-  overflow-x: auto; /* 手機版可橫向滑動 */
-  padding-bottom: 10px;
+  gap: 8px;
+  overflow-x: auto;
+  padding-bottom: 4px;
+  scrollbar-width: none; /* Firefox */
 }
 
-.category-bar button {
-  padding: 8px 18px;
-  border-radius: 20px;
-  border: 1px solid #ddd;
+.category-nav::-webkit-scrollbar {
+  display: none; /* Chrome/Safari */
+}
+
+.cat-btn {
+  padding: 10px 20px;
+  border-radius: 10px;
+  border: 1px solid #e2e8f0;
   background: white;
   cursor: pointer;
   white-space: nowrap;
-  transition: all 0.2s;
-  color: #555;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  color: #64748b;
+  font-size: 14px;
+  font-weight: 600;
 }
 
-.category-bar button:hover {
-  border-color: #ff4d4f;
-  color: #ff4d4f;
+.cat-btn:hover {
+  border-color: #0f172a;
+  color: #0f172a;
+  background: #f8fafc;
 }
 
-.category-bar button.active {
-  background-color: #ff4d4f;
-  border-color: #ff4d4f;
+.cat-btn.active {
+  background-color: #0f172a;
+  border-color: #0f172a;
   color: white;
-  font-weight: bold;
+  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.15);
 }
 
-/* 商品網格佈局 */
+/* 內容容器佈局 */
+.content-container {
+  max-width: 1100px;
+  margin: 40px auto;
+  padding: 0 24px;
+}
+
 .item-grid {
   display: grid;
-  max-width: 1200px;
-  margin: 0 auto;
-  /* 橫向排列核心：自動填滿，每格最小 220px */
-  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-  gap: 20px;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 32px; /* 增加間距，讓卡片更有呼吸感 */
 }
 
-.custom-card {
-  background: #fff;
-  border-radius: 8px;
-  border: 1px solid #eee;
-  transition: transform 0.2s, box-shadow 0.2s;
+.empty-state {
+  text-align: center;
+  padding: 100px 0;
+  color: #94a3b8;
 }
 
-.custom-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 8px 15px rgba(0,0,0,0.1);
+.empty-icon {
+  font-size: 48px;
+  margin-bottom: 16px;
 }
 
-/* 隱藏滾動條但保持功能 (可選) */
-.category-bar::-webkit-scrollbar {
-  display: none;
-}
-
-@media (max-width: 600px) {
-  .item-grid {
-    grid-template-columns: repeat(2, 1fr); /* 手機一排兩個 */
-    gap: 12px;
+@media (max-width: 768px) {
+  .marketplace-header {
+    padding: 24px 0 16px;
   }
+  
+  .content-container {
+    margin: 24px auto;
+  }
+
+  .item-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+  }
+  
+  .page-title {
+    font-size: 20px;
+    margin-bottom: 16px;
+  }
+}
+.subtitle {
+  color: #64748b;
+  text-align: left;
+  margin-bottom: 40px;
+  font-size: 14px;
 }
 </style>

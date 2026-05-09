@@ -30,11 +30,14 @@ onMounted(fetchMyItems)
   <div class="my-items-container">
     <header class="page-header">
       <div class="header-content">
-        <h1>我的拍賣</h1>
-        <p class="subtitle">管理您刊登的所有商品</p>
+        <p class="subtitle">管理與追蹤您刊登的所有商品狀態</p>
       </div>
       <router-link to="/create" class="create-btn">
-        刊登新商品
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <line x1="12" y1="5" x2="12" y2="19"></line>
+          <line x1="5" y1="12" x2="19" y2="12"></line>
+        </svg>
+        <span>刊登新商品</span>
       </router-link>
     </header>
 
@@ -47,7 +50,8 @@ onMounted(fetchMyItems)
 
     <main class="content-section">
       <div v-if="loading" class="loading-state">
-        載入中...
+        <div class="spinner"></div>
+        <span>正在讀取清單...</span>
       </div>
 
       <div v-else-if="items.length > 0" class="item-grid">
@@ -63,11 +67,12 @@ onMounted(fetchMyItems)
       <div v-else class="empty-state">
         <div class="empty-icon">📦</div>
         <h3>目前還沒有商品</h3>
-        <p>把家裡用不到的寶物拿出來拍賣吧！</p>
+        <p>把您用不到的寶物拿出來拍賣，給它下一個家！</p>
         <router-link to="/create" class="empty-btn">立即去刊登</router-link>
       </div>
     </main>
 
+    <!-- 留言板按鈕 (沿用之前美化過的樣式) -->
     <button class="message-toggle" @click="isMessageOpen = true">
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
         <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
@@ -83,7 +88,8 @@ onMounted(fetchMyItems)
         <button class="close-btn" @click="isMessageOpen = false">✕</button>
       </div>
       <div class="aside-body">
-        <MessageBoard :userId="auth.user.id":canPost="false" />
+        <!-- 傳遞 userId 並禁止在此處發言（身為賣家僅觀看或回覆） -->
+        <MessageBoard v-if="auth.user" :userId="auth.user.id" />
       </div>
     </aside>
   </div>
@@ -91,101 +97,154 @@ onMounted(fetchMyItems)
 
 <style scoped>
 .my-items-container {
-  max-width: 1200px;
+  max-width: 1100px;
   margin: 0 auto;
-  padding: 40px 20px;
+  padding: 60px 24px;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
 }
 
 .page-header {
   display: flex;
   justify-content: space-between;
-  align-items: flex-end;
-  margin-bottom: 30px;
-  border-bottom: 2px solid #f0f0f0;
-  padding-bottom: 20px;
+  align-items: center;
+  margin-bottom: 40px;
+  padding-bottom: 30px;
+  border-bottom: 1px solid #f1f5f9;
 }
 
 .page-header h1 {
-  font-size: 1.8rem;
-  color: #333;
+  font-size: 26px;
+  font-weight: 800;
+  color: #0f172a;
   margin: 0;
 }
 
 .subtitle {
-  color: #888;
-  margin-top: 5px;
+  color: #64748b;
+  margin-top: 6px;
+  font-size: 15px;
 }
 
 .create-btn {
-  background-color: #ee4d2d;
+  background-color: #0f172a;
   color: white;
   text-decoration: none;
-  padding: 10px 20px;
-  border-radius: 6px;
-  font-weight: bold;
-  transition: background 0.3s;
+  padding: 12px 24px;
+  border-radius: 10px;
+  font-weight: 700;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.3s ease;
 }
 
 .create-btn:hover {
-  background-color: #d73211;
+  background-color: #334155;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.15);
 }
 
 .stats-overview {
-  display: flex;
-  gap: 20px;
-  margin-bottom: 30px;
+  margin-bottom: 40px;
 }
 
 .stat-card {
   background: white;
-  padding: 15px 25px;
-  border-radius: 10px;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-  display: flex;
+  padding: 20px 30px;
+  border-radius: 16px;
+  border: 1px solid #f1f5f9;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.02);
+  display: inline-flex;
   flex-direction: column;
+  border-left: 4px solid #0f172a; /* 質感裝飾線 */
 }
 
 .stat-label {
-  font-size: 0.85rem;
-  color: #666;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #94a3b8;
+  margin-bottom: 4px;
 }
 
 .stat-value {
-  font-size: 1.5rem;
-  font-weight: bold;
-  color: #ee4d2d;
+  font-size: 28px;
+  font-weight: 800;
+  color: #0f172a;
 }
 
 .item-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-  gap: 25px;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 32px;
+}
+
+.loading-state {
+  text-align: center;
+  padding: 100px 0;
+  color: #64748b;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+}
+
+.spinner {
+  width: 32px;
+  height: 32px;
+  border: 3px solid #f1f5f9;
+  border-top: 3px solid #0f172a;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
 }
 
 .empty-state {
   text-align: center;
-  padding: 80px 20px;
-  background: white;
-  border-radius: 12px;
-  border: 2px dashed #ddd;
+  padding: 80px 40px;
+  background: #f8fafc;
+  border-radius: 20px;
+  border: 2px dashed #e2e8f0;
 }
 
 .empty-icon {
-  font-size: 4rem;
+  font-size: 48px;
   margin-bottom: 20px;
+}
+
+.empty-state h3 {
+  color: #0f172a;
+  margin-bottom: 12px;
+}
+
+.empty-state p {
+  color: #64748b;
+  margin-bottom: 24px;
 }
 
 .empty-btn {
   display: inline-block;
-  margin-top: 20px;
-  color: #ee4d2d;
+  background: #ffffff;
+  color: #0f172a;
   text-decoration: none;
-  font-weight: bold;
-  border: 1px solid #ee4d2d;
-  padding: 8px 24px;
-  border-radius: 4px;
+  font-weight: 700;
+  border: 1.5px solid #0f172a;
+  padding: 10px 32px;
+  border-radius: 10px;
+  transition: all 0.2s;
 }
 
+.empty-btn:hover {
+  background: #0f172a;
+  color: #ffffff;
+}
+
+/* 側邊留言板樣式 (與之前保持一致) */
 .message-toggle {
   position: fixed;
   bottom: 30px;
@@ -194,20 +253,14 @@ onMounted(fetchMyItems)
   color: #ffffff;
   border: none;
   padding: 14px 24px;
-  border-radius: 10px;
+  border-radius: 12px;
   cursor: pointer;
   font-weight: 600;
   display: flex;
   align-items: center;
   gap: 10px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-  transition: 0.2s;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
   z-index: 100;
-}
-
-.message-toggle:hover {
-  background: #1e293b;
-  transform: translateY(-2px);
 }
 
 .overlay {
@@ -221,10 +274,7 @@ onMounted(fetchMyItems)
   z-index: 999;
 }
 
-.overlay.active {
-  opacity: 1;
-  pointer-events: auto;
-}
+.overlay.active { opacity: 1; pointer-events: auto; }
 
 .message-aside {
   position: fixed;
@@ -234,15 +284,13 @@ onMounted(fetchMyItems)
   height: 100%;
   background: #fff;
   transform: translateX(100%);
-  transition: transform 0.3s ease;
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   z-index: 1000;
   display: flex;
   flex-direction: column;
 }
 
-.message-aside.open {
-  transform: translateX(0);
-}
+.message-aside.open { transform: translateX(0); }
 
 .aside-header {
   padding: 24px;
@@ -252,34 +300,15 @@ onMounted(fetchMyItems)
   align-items: center;
 }
 
-.aside-header h2 {
-  font-size: 16px;
-  font-weight: 600;
-}
+.aside-body { flex: 1; overflow-y: auto; padding: 24px; }
 
-.close-btn {
-  background: none;
-  border: none;
-  cursor: pointer;
-  font-size: 18px;
-  color: #94a3b8;
-}
-
-.aside-body {
-  flex: 1;
-  overflow-y: auto;
-  padding: 24px;
-}
-
-@media (max-width: 600px) {
+@media (max-width: 768px) {
   .page-header {
     flex-direction: column;
     align-items: flex-start;
-    gap: 15px;
+    gap: 20px;
   }
-
-  .message-aside {
-    width: 100%;
-  }
+  .message-aside { width: 100%; }
+  .item-grid { grid-template-columns: repeat(2, 1fr); gap: 16px; }
 }
 </style>
