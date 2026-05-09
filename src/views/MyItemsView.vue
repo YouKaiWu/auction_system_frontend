@@ -2,9 +2,14 @@
 import { ref, onMounted, computed } from 'vue'
 import api from '@/api/api'
 import ItemCard from '@/components/ItemCard.vue'
+import MessageBoard from '@/components/MessageBoard.vue'
+import { useAuthStore } from '@/stores/auth'
 
 const items = ref([])
 const loading = ref(true)
+const isMessageOpen = ref(false)
+
+const auth = useAuthStore()
 
 const fetchMyItems = async () => {
   try {
@@ -16,7 +21,6 @@ const fetchMyItems = async () => {
   }
 }
 
-// 簡單的統計數據
 const totalItems = computed(() => items.value.length)
 
 onMounted(fetchMyItems)
@@ -24,27 +28,23 @@ onMounted(fetchMyItems)
 
 <template>
   <div class="my-items-container">
-    <!-- 頁面頂部區域 -->
     <header class="page-header">
       <div class="header-content">
         <h1>我的拍賣</h1>
         <p class="subtitle">管理您刊登的所有商品</p>
       </div>
       <router-link to="/create" class="create-btn">
-        <i class="fas fa-plus"></i> 刊登新商品
+        刊登新商品
       </router-link>
     </header>
 
-    <!-- 數據概覽卡片 -->
     <div class="stats-overview">
       <div class="stat-card">
         <span class="stat-label">商品總數</span>
         <span class="stat-value">{{ totalItems }}</span>
       </div>
-      <!-- 這裡可以擴充其他統計，例如：已售出、審核中 -->
     </div>
 
-    <!-- 商品列表區 -->
     <main class="content-section">
       <div v-if="loading" class="loading-state">
         載入中...
@@ -60,7 +60,6 @@ onMounted(fetchMyItems)
         />
       </div>
 
-      <!-- 空狀態處理 -->
       <div v-else class="empty-state">
         <div class="empty-icon">📦</div>
         <h3>目前還沒有商品</h3>
@@ -68,6 +67,25 @@ onMounted(fetchMyItems)
         <router-link to="/create" class="empty-btn">立即去刊登</router-link>
       </div>
     </main>
+
+    <button class="message-toggle" @click="isMessageOpen = true">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+      </svg>
+      <span>我的留言板</span>
+    </button>
+
+    <div :class="['overlay', { active: isMessageOpen }]" @click="isMessageOpen = false"></div>
+
+    <aside :class="['message-aside', { open: isMessageOpen }]">
+      <div class="aside-header">
+        <h2>我的留言板</h2>
+        <button class="close-btn" @click="isMessageOpen = false">✕</button>
+      </div>
+      <div class="aside-body">
+        <MessageBoard :userId="auth.user.id":canPost="false" />
+      </div>
+    </aside>
   </div>
 </template>
 
@@ -78,7 +96,6 @@ onMounted(fetchMyItems)
   padding: 40px 20px;
 }
 
-/* 頁頭樣式 */
 .page-header {
   display: flex;
   justify-content: space-between;
@@ -113,7 +130,6 @@ onMounted(fetchMyItems)
   background-color: #d73211;
 }
 
-/* 統計資訊 */
 .stats-overview {
   display: flex;
   gap: 20px;
@@ -140,14 +156,12 @@ onMounted(fetchMyItems)
   color: #ee4d2d;
 }
 
-/* 網格系統 */
 .item-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
   gap: 25px;
 }
 
-/* 空狀態樣式 */
 .empty-state {
   text-align: center;
   padding: 80px 20px;
@@ -172,12 +186,100 @@ onMounted(fetchMyItems)
   border-radius: 4px;
 }
 
-/* 手機版適應 */
+.message-toggle {
+  position: fixed;
+  bottom: 30px;
+  right: 30px;
+  background: #0f172a;
+  color: #ffffff;
+  border: none;
+  padding: 14px 24px;
+  border-radius: 10px;
+  cursor: pointer;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  transition: 0.2s;
+  z-index: 100;
+}
+
+.message-toggle:hover {
+  background: #1e293b;
+  transform: translateY(-2px);
+}
+
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.2);
+  backdrop-filter: blur(2px);
+  opacity: 0;
+  pointer-events: none;
+  transition: 0.3s;
+  z-index: 999;
+}
+
+.overlay.active {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.message-aside {
+  position: fixed;
+  top: 0;
+  right: 0;
+  width: 400px;
+  height: 100%;
+  background: #fff;
+  transform: translateX(100%);
+  transition: transform 0.3s ease;
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+}
+
+.message-aside.open {
+  transform: translateX(0);
+}
+
+.aside-header {
+  padding: 24px;
+  border-bottom: 1px solid #f1f5f9;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.aside-header h2 {
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.close-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 18px;
+  color: #94a3b8;
+}
+
+.aside-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 24px;
+}
+
 @media (max-width: 600px) {
   .page-header {
     flex-direction: column;
     align-items: flex-start;
     gap: 15px;
+  }
+
+  .message-aside {
+    width: 100%;
   }
 }
 </style>
