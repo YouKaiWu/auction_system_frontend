@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia'
 import api from '@/api/api'
+import router from '@/router'
 
 export const useAuthStore = defineStore('auth', {
   state: () => ({
@@ -35,6 +36,8 @@ export const useAuthStore = defineStore('auth', {
       this.token = null
       this.user = null // 4. 登出時也要清空 user
       localStorage.removeItem('token')
+
+      router.push('/login') 
     }
   }
 })
