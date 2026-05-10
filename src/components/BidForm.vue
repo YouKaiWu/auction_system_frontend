@@ -6,6 +6,9 @@ const props = defineProps({
   itemId: Number
 })
 
+const emit = defineEmits(['bid-success'])
+
+
 const bidPrice = ref(null)
 const isSubmitting = ref(false)
 
@@ -22,6 +25,7 @@ const submitBid = async () => {
       bidPrice: bidPrice.value
     })
     alert('競標成功！')
+    emit('bid-success')
     bidPrice.value = null // 清空輸入
   } catch (error) {
     alert('競標失敗，請稍後再試')

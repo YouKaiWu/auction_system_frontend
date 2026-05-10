@@ -29,7 +29,7 @@
             </div>
 
             <div class="bid-section">
-              <BidForm :itemId="item.id" />
+              <BidForm :itemId="item.id" @bid-success="fetchItem" />
             </div>
           </div>
         </section>
