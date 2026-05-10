@@ -2,10 +2,12 @@
 import { ref, onMounted } from 'vue'
 import api from '@/api/api'
 import ItemCard from '@/components/ItemCard.vue'
+import {useAuthStore} from '@/stores/auth'
 
 const items = ref([])
 const categories = ref([])
 const activeCategory = ref(null)
+const auth = useAuthStore()
 
 const fetchCategories = async () => {
   const res = await api.get('/categories')
@@ -14,10 +16,14 @@ const fetchCategories = async () => {
 
 const fetchItems = async (categoryId = null) => {
   activeCategory.value = categoryId
+
   const res = await api.get('/items', {
-    params: { categoryId: categoryId }
+    params: { categoryId }
   })
-  items.value = res.data
+
+  const userId = auth.user?.id
+
+  items.value = res.data.filter(item => item.ownerId !== userId)
 }
 
 onMounted(() => {
